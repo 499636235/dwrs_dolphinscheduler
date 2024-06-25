@@ -167,6 +167,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     /**
      * query enabled users
+     *
      * @return
      */
     List<User> queryEnabledUsers();
@@ -178,5 +179,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @return user with process definition code
      */
     List<UserWithProcessDefinitionCode> queryUserWithProcessDefinitionCode(@Param("processDefinitionCodes") List<Long> processDefinitionCodes);
+
+    List<UserWithProcessDefinitionCode> queryVersionsUserWithProcessDefinitionCode(@Param("code") long code);
 
 }

@@ -166,4 +166,21 @@
             </foreach>
         </if>
     </select>
+    <select id="queryVersionsUserWithProcessDefinitionCode" resultType="org.apache.dolphinscheduler.dao.entity.UserWithProcessDefinitionCode">
+        select
+        dl.code as process_definition_code,
+        dl.version as process_definition_version,
+        u.id as modifier_id,
+        u.user_name as modifier_name,
+        u2.id as creator_id,
+        u2.user_name as creator_name
+        from t_ds_process_definition_log dl
+        inner join t_ds_process_definition pd
+        on pd.code = dl.code
+        inner join t_ds_user u
+        on dl.operator = u.id
+        inner join t_ds_user u2
+        on pd.user_id = u2.id
+        where dl.code = #{code}
+    </select>
 </mapper>
