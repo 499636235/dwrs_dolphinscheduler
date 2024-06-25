@@ -30,6 +30,7 @@
 
     <properties>
         <node.version>v16.13.1</node.version>
+        <npm.version>8.4.1</npm.version>
         <pnpm.version>v6.32.6</pnpm.version>
         <sonar.sources>src</sonar.sources>
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
@@ -46,33 +47,31 @@
                         <version>${frontend-maven-plugin.version}</version>
                         <configuration>
                             <skip>${build.ui.skip}</skip>
-                            <pnpmInheritsProxyConfigFromMaven>false</pnpmInheritsProxyConfigFromMaven>
                         </configuration>
                         <executions>
                             <execution>
-                                <id>install node and pnpm</id>
+                                <id>install node and npm</id>
                                 <goals>
-                                    <goal>install-node-and-pnpm</goal>
+                                    <goal>install-node-and-npm</goal>
                                 </goals>
                                 <configuration>
                                     <nodeVersion>${node.version}</nodeVersion>
-                                    <pnpmVersion>${pnpm.version}</pnpmVersion>
+                                    <npmVersion>${npm.version}</npmVersion>
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>pnpm install</id>
+                                <id>npm install</id>
                                 <goals>
-                                    <goal>pnpm</goal>
+                                    <goal>npm</goal>
                                 </goals>
-                                <phase>generate-resources</phase>
                                 <configuration>
                                     <arguments>install</arguments>
                                 </configuration>
                             </execution>
                             <execution>
-                                <id>pnpm run build:prod</id>
+                                <id>npm run build:prod</id>
                                 <goals>
-                                    <goal>pnpm</goal>
+                                    <goal>npm</goal>
                                 </goals>
                                 <configuration>
                                     <arguments>run build:prod</arguments>
