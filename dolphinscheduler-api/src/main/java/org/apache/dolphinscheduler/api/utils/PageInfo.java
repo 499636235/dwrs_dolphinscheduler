@@ -75,4 +75,22 @@ public class PageInfo<T> {
     public static <T> PageInfo<T> of(Integer currentPage, Integer pageSize) {
         return new PageInfo<>(currentPage, pageSize);
     }
+
+    public void setTotal(Integer total) {
+        this.total = total;
+        calcTotalList();
+    }
+
+    public void setTotalList(List<T> totalList) {
+        this.totalList = totalList;
+        calcTotalList();
+    }
+
+    public void calcTotalList() {
+        if (this.pageSize == 0) {
+            this.totalPage = 0;
+        } else {
+            this.totalPage = this.total / this.pageSize + 1;
+        }
+    }
 }
