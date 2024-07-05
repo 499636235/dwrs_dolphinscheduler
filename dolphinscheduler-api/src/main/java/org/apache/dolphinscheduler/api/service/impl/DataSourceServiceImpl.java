@@ -549,7 +549,9 @@ public class DataSourceServiceImpl extends BaseServiceImpl implements DataSource
             if (null == connection) {
                 throw new ServiceException(Status.DATASOURCE_CONNECT_FAILED);
             }
-            if (dataSource.getType() == DbType.POSTGRESQL) {
+            if (dataSource.getType() == DbType.ORACLE) {
+                rs = connection.createStatement().executeQuery(Constants.DATABASES_QUERY_ORACLE);
+            } else if (dataSource.getType() == DbType.POSTGRESQL) {
                 rs = connection.createStatement().executeQuery(Constants.DATABASES_QUERY_PG);
             } else {
                 rs = connection.createStatement().executeQuery(Constants.DATABASES_QUERY);

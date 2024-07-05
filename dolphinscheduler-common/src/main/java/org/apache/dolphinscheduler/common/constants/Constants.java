@@ -729,6 +729,7 @@ public final class Constants {
      * data quality
      */
     public static final String DATABASES_QUERY = "show databases";
+    public static final String DATABASES_QUERY_ORACLE = "select username from all_users";
     public static final String DATABASES_QUERY_PG = "SELECT datname FROM pg_database";
 
     /**
