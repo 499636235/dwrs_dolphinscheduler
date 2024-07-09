@@ -68,7 +68,7 @@
         <javax-mail>1.6.2</javax-mail>
         <guava.version>31.1-jre</guava.version>
         <postgresql.version>42.4.1</postgresql.version>
-        <hive-jdbc.version>2.3.9</hive-jdbc.version>
+        <hive-jdbc.version>2.1.1</hive-jdbc.version>
         <kyuubi-jdbc.version>1.7.0</kyuubi-jdbc.version>
         <commons-io.version>2.11.0</commons-io.version>
         <oshi-core.version>6.1.1</oshi-core.version>
@@ -95,7 +95,7 @@
         <gson.version>2.9.1</gson.version>
         <dropwizard.metrics-version>4.2.11</dropwizard.metrics-version>
         <snappy.version>1.1.10.1</snappy.version>
-        <spark.version>3.2.2</spark.version>
+        <spark.version>2.4.0</spark.version>
         <janino.version>3.0.16</janino.version>
         <snakeyaml.version>1.33</snakeyaml.version>
         <htrace.version>4.1.1</htrace.version>
