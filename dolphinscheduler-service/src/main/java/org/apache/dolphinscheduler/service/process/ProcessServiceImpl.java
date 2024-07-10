@@ -1780,6 +1780,36 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     /**
+     * save processDefinition (including create or update processDefinition)
+     */
+    @Override
+    public int insertProcessDefine(User operator, ProcessDefinition processDefinition, Boolean syncDefine,
+                                   Boolean isFromProcessDefine) {
+        ProcessDefinitionLog processDefinitionLog = new ProcessDefinitionLog(processDefinition);
+        Integer version = processDefineLogMapper.queryMaxVersionForDefinition(processDefinition.getCode());
+        int insertVersion = version == null || version == 0 ? Constants.VERSION_FIRST : version + 1;
+        processDefinitionLog.setVersion(insertVersion);
+        processDefinitionLog
+                .setReleaseState(!isFromProcessDefine || processDefinitionLog.getReleaseState() == ReleaseState.ONLINE
+                        ? ReleaseState.ONLINE
+                        : ReleaseState.OFFLINE);
+        processDefinitionLog.setOperator(operator.getId());
+        processDefinitionLog.setOperateTime(processDefinition.getUpdateTime());
+        processDefinitionLog.setId(null);
+        int insertLog = processDefineLogMapper.insert(processDefinitionLog);
+        int result = 1;
+        if (Boolean.TRUE.equals(syncDefine)) {
+            if (processDefinition.getId() != null) {
+                processDefinitionLog.setId(processDefinition.getId());
+                result = processDefineMapper.insert(processDefinitionLog);
+            } else {
+                result = 0;
+            }
+        }
+        return (insertLog & result) > 0 ? insertVersion : 0;
+    }
+
+    /**
      * save task relations
      */
     @Override

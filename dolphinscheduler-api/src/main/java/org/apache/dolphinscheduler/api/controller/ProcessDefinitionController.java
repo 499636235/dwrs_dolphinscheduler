@@ -712,6 +712,33 @@ public class ProcessDefinitionController extends BaseController {
     }
 
     /**
+     * import and update process definition
+     *
+     * @param loginUser login user
+     * @param projectCode project code
+     * @param file resource file
+     * @return import result code
+     */
+    @Operation(summary = "importUpdateProcessDefinition", description = "IMPORT_UPDATE_PROCESS_DEFINITION_NOTES")
+    @Parameters({
+            @Parameter(name = "file", description = "RESOURCE_FILE", required = true, schema = @Schema(implementation = MultipartFile.class))
+    })
+    @PostMapping(value = "/importUpdate")
+    @ApiException(IMPORT_PROCESS_DEFINE_ERROR)
+    public Result importUpdateProcessDefinition(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                                @Parameter(name = "projectCode", description = "PROJECT_CODE", required = true) @PathVariable long projectCode,
+                                                @RequestParam("file") MultipartFile file) {
+        Map<String, Object> result;
+//        if ("application/zip".equals(file.getContentType())) {
+//            result = processDefinitionService.importSqlProcessDefinition(loginUser, projectCode, file);
+//        } else {
+//            result = processDefinitionService.importProcessDefinition(loginUser, projectCode, file);
+//        }
+        result = processDefinitionService.importUpdateProcessDefinition(loginUser, projectCode, file);
+        return returnDataList(result);
+    }
+
+    /**
      * query process definition global variables and local variables
      *
      * @param loginUser login user

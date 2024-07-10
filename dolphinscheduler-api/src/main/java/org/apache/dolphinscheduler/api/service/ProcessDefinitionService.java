@@ -68,6 +68,22 @@ public interface ProcessDefinitionService {
                                                 ProcessExecutionTypeEnum executionType);
 
     /**
+     * create process definition
+     *
+     * @param loginUser               login user
+     * @param projectCode             project code
+     * @param processDefinitionInJson process definition
+     * @param taskRelationJson        relation json for nodes
+     * @param taskDefinitionJson      taskDefinitionJson
+     * @return create result code
+     */
+    Map<String, Object> createProcessDefinition(User loginUser,
+                                                long projectCode,
+                                                ProcessDefinition processDefinitionInJson,
+                                                String taskRelationJson,
+                                                String taskDefinitionJson);
+
+    /**
      * create process definition V2
      *
      * @param loginUser login user
@@ -271,6 +287,18 @@ public interface ProcessDefinitionService {
     Map<String, Object> importProcessDefinition(User loginUser,
                                                 long projectCode,
                                                 MultipartFile file);
+
+    /**
+     * import and update process definition
+     *
+     * @param loginUser login user
+     * @param projectCode project code
+     * @param file process metadata json file
+     * @return import process
+     */
+    Map<String, Object> importUpdateProcessDefinition(User loginUser,
+                                                      long projectCode,
+                                                      MultipartFile file);
 
     /**
      * import sql process definition

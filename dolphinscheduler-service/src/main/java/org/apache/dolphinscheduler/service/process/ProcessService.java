@@ -143,6 +143,9 @@ public interface ProcessService {
     int saveProcessDefine(User operator, ProcessDefinition processDefinition, Boolean syncDefine,
                           Boolean isFromProcessDefine);
 
+    int insertProcessDefine(User operator, ProcessDefinition processDefinition, Boolean syncDefine,
+                          Boolean isFromProcessDefine);
+
     int saveTaskRelation(User operator, long projectCode, long processDefinitionCode, int processDefinitionVersion,
                          List<ProcessTaskRelationLog> taskRelationList, List<TaskDefinitionLog> taskDefinitionLogs,
                          Boolean syncDefine);
