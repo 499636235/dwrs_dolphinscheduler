@@ -32,7 +32,10 @@ export const useForm = () => {
       name: '',
       file: ''
     },
+    workflowOptions: ref([]),
+    importItems: ref([]),
     saving: false,
+    parseing: false,
     importRules: {
       file: {
         required: true,

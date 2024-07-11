@@ -21,7 +21,8 @@ import {
   ExecuteTaskReq,
   ProjectCodeReq,
   ProcessDefinitionCodeReq,
-  ProcessInstanceReq
+  ProcessInstanceReq,
+  ProcessInstancesReq
 } from './types'
 
 export function execute(data: ExecuteReq, code: number): any {
@@ -57,6 +58,17 @@ export function startProcessInstance(
 ): any {
   return axios({
     url: `/projects/${code}/executors/start-process-instance`,
+    method: 'post',
+    data
+  })
+}
+
+export function batchStartProcessInstance(
+  data: ProcessInstancesReq,
+  code: number
+): any {
+  return axios({
+    url: `/projects/${code}/executors/batch-start-process-instance`,
     method: 'post',
     data
   })

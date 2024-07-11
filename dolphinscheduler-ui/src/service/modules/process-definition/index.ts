@@ -112,6 +112,22 @@ export function importProcessDefinition(data: FormData, code: number): any {
   })
 }
 
+export function importUpdateProcessDefinition(data: FormData, code: number): any {
+  return axios({
+    url: `/projects/${code}/process-definition/importUpdate`,
+    method: 'post',
+    data
+  })
+}
+
+export function parseJsonProcessDefinition(data: FormData, code: number): any {
+  return axios({
+    url: `/projects/${code}/process-definition/parseJson`,
+    method: 'post',
+    data
+  })
+}
+
 export function queryList(code: CodeReq): any {
   return axios({
     url: `/projects/${code}/process-definition/list`,

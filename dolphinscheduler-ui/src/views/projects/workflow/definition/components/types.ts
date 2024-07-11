@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-export type { ProcessInstanceReq } from '@/service/modules/executors/types'
+export type { ProcessInstanceReq, ProcessInstancesReq } from '@/service/modules/executors/types'
 
 export interface IEnvironmentOption {
   label: string

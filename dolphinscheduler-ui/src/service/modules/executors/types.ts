@@ -74,10 +74,15 @@ interface ProcessInstanceReq extends ProcessDefinitionCodeReq {
   version?: number
 }
 
+interface ProcessInstancesReq extends ProcessInstanceReq{
+  processDefinitionCodes: string
+}
+
 export {
   ExecuteReq,
   ExecuteTaskReq,
   ProjectCodeReq,
   ProcessDefinitionCodeReq,
+  ProcessInstancesReq,
   ProcessInstanceReq
 }

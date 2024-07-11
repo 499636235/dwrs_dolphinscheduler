@@ -24,12 +24,14 @@ import { format } from 'date-fns'
 import {
   batchCopyByCodes,
   importProcessDefinition,
-  queryProcessDefinitionByCode
+  queryProcessDefinitionByCode,
+  importUpdateProcessDefinition,
+  parseJsonProcessDefinition
 } from '@/service/modules/process-definition'
 import { queryAllWorkerGroups } from '@/service/modules/worker-groups'
 import { queryAllEnvironmentList } from '@/service/modules/environment'
 import { listNormalAlertGroupById } from '@/service/modules/alert-group'
-import { startProcessInstance } from '@/service/modules/executors'
+import { startProcessInstance, batchStartProcessInstance } from '@/service/modules/executors'
 import {
   createSchedule,
   updateSchedule,
@@ -37,7 +39,7 @@ import {
 } from '@/service/modules/schedules'
 import { parseTime } from '@/common/common'
 import { EnvironmentItem } from '@/service/modules/environment/types'
-import { ITimingState, ProcessInstanceReq } from './types'
+import { ITimingState, ProcessInstanceReq, ProcessInstancesReq } from './types'
 import { queryTenantList } from '@/service/modules/tenants'
 
 export function useModal(
@@ -65,7 +67,9 @@ export function useModal(
   const resetImportForm = () => {
     state.importForm.name = ''
     state.importForm.file = ''
-  }
+    state.importItems = []
+    state.workflowOptions = []
+}
 
   const handleImportDefinition = async () => {
     await state.importFormRef.validate()
@@ -84,6 +88,50 @@ export function useModal(
       resetImportForm()
     } catch (err) {
       state.saving = false
+    }
+  }
+
+  const handleImportUpdateDefinition = async () => {
+    await state.importFormRef.validate()
+
+    if (state.importItems.length === 0) return
+    
+    if (state.saving) return
+    state.saving = true
+    try {
+      const formData = new FormData()
+      formData.append('file', state.importForm.file)
+      formData.append('importItems', state.importItems)
+      const code = Number(router.currentRoute.value.params.projectCode)
+      await importUpdateProcessDefinition(formData, code)
+      window.$message.success(t('project.workflow.success'))
+      state.saving = false
+      ctx.emit('updateList')
+      ctx.emit('update:show')
+      resetImportForm()
+    } catch (err) {
+      state.saving = false
+    }
+  }
+
+  const handleParseJsonDefinition = async () => {
+    if (!state.importForm.file) return
+
+    if (state.parseing) return
+    state.parseing = true
+    try {
+      const formData = new FormData()
+      formData.append('file', state.importForm.file)
+      const code = Number(router.currentRoute.value.params.projectCode)
+      const result = await parseJsonProcessDefinition(formData, code)
+      state.workflowOptions = []
+      result.map((item: string) => {
+        state.workflowOptions.push({ label: item, value: item })
+      })
+      window.$message.success(t('project.workflow.success'))
+      state.parseing = false
+    } catch (err) {
+      state.parseing = false
     }
   }
 
@@ -129,6 +177,56 @@ export function useModal(
         ? JSON.stringify(startParams)
         : ''
       await startProcessInstance(params, variables.projectCode)
+      window.$message.success(t('project.workflow.success'))
+      state.saving = false
+      ctx.emit('updateList')
+      ctx.emit('update:show')
+    } catch (err) {
+      state.saving = false
+    }
+  }
+
+  const handleBatchStartDefinition = async (codes: string) => {
+    await state.startFormRef.validate()
+
+    if (state.saving) return
+    state.saving = true
+    try {
+      state.startForm.processDefinitionCodes = codes
+      const params = omit(state.startForm, [
+        'startEndTime',
+        'scheduleTime',
+        'dataDateType'
+      ]) as ProcessInstancesReq
+      if (state.startForm.dataDateType === 1) {
+        const start = format(
+          new Date(state.startForm.startEndTime[0]),
+          'yyyy-MM-dd HH:mm:ss'
+        )
+        const end = format(
+          new Date(state.startForm.startEndTime[1]),
+          'yyyy-MM-dd HH:mm:ss'
+        )
+        params.scheduleTime = JSON.stringify({
+          complementStartDate: start,
+          complementEndDate: end
+        })
+      } else {
+        params.scheduleTime = JSON.stringify({
+          complementScheduleDateList: state.startForm.scheduleTime
+        })
+      }
+
+      const startParams = {} as any
+      for (const item of variables.startParamsList) {
+        if (item.value !== '') {
+          startParams[item.prop] = item.value
+        }
+      }
+      params.startParams = !_.isEmpty(startParams)
+        ? JSON.stringify(startParams)
+        : ''
+      await batchStartProcessInstance(params, variables.projectCode)
       window.$message.success(t('project.workflow.success'))
       state.saving = false
       ctx.emit('updateList')
@@ -307,7 +405,10 @@ export function useModal(
   return {
     variables,
     handleImportDefinition,
+    handleImportUpdateDefinition,
+    handleParseJsonDefinition,
     handleStartDefinition,
+    handleBatchStartDefinition,
     handleCreateTiming,
     handleUpdateTiming,
     handleBatchCopyDefinition,

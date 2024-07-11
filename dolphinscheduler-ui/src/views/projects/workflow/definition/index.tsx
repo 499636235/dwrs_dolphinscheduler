@@ -39,7 +39,9 @@ import { useRouter, useRoute } from 'vue-router'
 import { useUISettingStore } from '@/store/ui-setting/ui-setting'
 import Card from '@/components/card'
 import ImportModal from './components/import-modal'
+import ImportUpdateModal from './components/import-update-modal'
 import StartModal from './components/start-modal'
+import BatchStartModal from './components/batch-start-modal'
 import TimingModal from './components/timing-modal'
 import VersionModal from './components/version-modal'
 import CopyModal from './components/copy-modal'
@@ -72,6 +74,11 @@ export default defineComponent({
     }
 
     const handleUpdateList = () => {
+      requestData()
+    }
+
+    const handleBatchStartUpdateList = () => {
+      variables.checkedRowKeys = []
       requestData()
     }
 
@@ -141,6 +148,7 @@ export default defineComponent({
       batchExportWorkflow,
       batchCopyWorkflow,
       handleCopyUpdateList,
+      handleBatchStartUpdateList,
       confirmToSetWorkflowTiming,
       ...toRefs(variables),
       uiSettingStore,
@@ -180,6 +188,14 @@ export default defineComponent({
                 onClick={() => (this.showRef = true)}
               >
                 {t('project.workflow.import_workflow')}
+              </NButton>
+              <NButton
+                strong
+                secondary
+                size='small'
+                onClick={() => (this.importUpdateShowRef = true)}
+              >
+                {t('project.workflow.import_update_workflow')}
               </NButton>
             </NSpace>
             <NSpace>
@@ -268,6 +284,23 @@ export default defineComponent({
                     )
                   }}
                 </NTooltip>
+                <NTooltip>
+                  {{
+                    default: () => t('project.workflow.batch_start'),
+                    trigger: () => (
+                      <NButton
+                        tag='div'
+                        size='small'
+                        type='primary'
+                        disabled={this.checkedRowKeys.length <= 0}
+                        onClick={() => (this.batchStartShowRef = true)}
+                        class='btn-delete-all'
+                      >
+                        {t('project.workflow.batch_start')}
+                      </NButton>
+                    )
+                  }}
+                </NTooltip>
               </NSpace>
               <NPagination
                 v-model:page={this.page}
@@ -286,10 +319,19 @@ export default defineComponent({
           v-model:show={this.showRef}
           onUpdateList={this.handleUpdateList}
         />
+        <ImportUpdateModal
+          v-model:show={this.importUpdateShowRef}
+          onUpdateList={this.handleUpdateList}
+        />
         <StartModal
           v-model:row={this.row}
           v-model:show={this.startShowRef}
           onUpdateList={this.handleUpdateList}
+        />
+        <BatchStartModal
+          v-model:codes={this.checkedRowKeys}
+          v-model:show={this.batchStartShowRef}
+          onUpdateList={this.handleBatchStartUpdateList}
         />
         <TimingModal
           v-model:row={this.row}
