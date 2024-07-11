@@ -42,6 +42,8 @@ export default defineConfig({
     }
   },
   server: {
+    port: 12346, // 指定启动端口
+    open: true, //启动后是否自动打开浏览器
     proxy: {
       '/dolphinscheduler': {
         target: loadEnv('development', './').VITE_APP_DEV_WEB_URL,
