@@ -76,6 +76,10 @@ export function useTable(
         key: 'description'
       },
       {
+        title: t('project.workflow.modify_user'),
+        key: 'modifyBy'
+      },
+      {
         title: t('project.workflow.create_time'),
         key: 'operateTime'
       }
