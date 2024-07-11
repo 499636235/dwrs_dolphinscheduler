@@ -184,7 +184,7 @@ export const AuthorizeModal = defineComponent({
                 v-model:page-size={this.pagination.pageSize}
                 page-count={this.pagination.totalPage}
                 show-size-picker
-                page-sizes={[5, 10]}
+                page-sizes={[5, 10, 50]}
                 show-quick-jumper
                 onUpdatePage={this.requestData}
                 onUpdatePageSize={this.handleChangePageSize}

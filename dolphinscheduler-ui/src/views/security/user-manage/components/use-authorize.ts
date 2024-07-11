@@ -63,7 +63,7 @@ export function useAuthorize() {
     authorizedFileResources: [] as number[],
     authorizedUdfResources: [] as number[],
     pagination: {
-      pageSize: 5,
+      pageSize: 50,
       page: 1,
       totalPage: 0
     },
