@@ -1299,11 +1299,18 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
      * @param loginUser   login user
      * @param projectCode project code
      * @param file        process metadata json file
+     * @param importItems items to import
      * @return import process
      */
     @Override
     @Transactional
-    public Map<String, Object> importUpdateProcessDefinition(User loginUser, long projectCode, MultipartFile file) {
+    public Map<String, Object> importUpdateProcessDefinition(User loginUser, long projectCode, MultipartFile file, String importItems) {
+        List<String> importItemList = Arrays.asList(importItems.split(","));
+        if (importItemList.isEmpty()) {
+            log.error("Import update processDefinition list failed the import item list is empty, importItemsJson: {}",
+                    importItems);
+            throw new ServiceException(Status.DATA_IS_NOT_VALID);
+        }
         Map<String, Object> result;
         String dagDataScheduleJson = FileUtils.file2String(file);
         List<DagDataSchedule> dagDataScheduleList = JSONUtils.toList(dagDataScheduleJson, DagDataSchedule.class);
@@ -1319,10 +1326,46 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
             return result;
         }
         for (DagDataSchedule dagDataSchedule : dagDataScheduleList) {
+            if (!importItemList.contains(dagDataSchedule.getProcessDefinition().getName())) {
+                continue;
+            }
             if (!checkAndUpsert(loginUser, projectCode, result, dagDataSchedule)) {
                 return result;
             }
         }
+        return result;
+    }
+
+    /**
+     * import and update process definition
+     *
+     * @param loginUser   login user
+     * @param projectCode project code
+     * @param file        process metadata json file
+     * @return import process
+     */
+    @Override
+    @Transactional
+    public Map<String, Object> parseJsonProcessDefinition(User loginUser, long projectCode, MultipartFile file) {
+        Map<String, Object> result;
+        String dagDataScheduleJson = FileUtils.file2String(file);
+        List<DagDataSchedule> dagDataScheduleList = JSONUtils.toList(dagDataScheduleJson, DagDataSchedule.class);
+        Project project = projectMapper.queryByCode(projectCode);
+        result = projectService.checkProjectAndAuth(loginUser, project, projectCode, WORKFLOW_IMPORT);
+        if (result.get(Constants.STATUS) != Status.SUCCESS) {
+            return result;
+        }
+        // check file content
+        if (CollectionUtils.isEmpty(dagDataScheduleList)) {
+            log.warn("Process definition file content is empty.");
+            putMsg(result, Status.DATA_IS_NULL, "fileContent");
+            return result;
+        }
+        List<String> processDefinitionList = new ArrayList<>();
+        for (DagDataSchedule dagDataSchedule : dagDataScheduleList) {
+            processDefinitionList.add(dagDataSchedule.getProcessDefinition().getName());
+        }
+        result.put(Constants.DATA_LIST, processDefinitionList);
         return result;
     }
 

@@ -727,14 +727,39 @@ public class ProcessDefinitionController extends BaseController {
     @ApiException(IMPORT_PROCESS_DEFINE_ERROR)
     public Result importUpdateProcessDefinition(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
                                                 @Parameter(name = "projectCode", description = "PROJECT_CODE", required = true) @PathVariable long projectCode,
-                                                @RequestParam("file") MultipartFile file) {
+                                                @RequestParam("file") MultipartFile file,
+                                                @RequestParam(value = "importItems", required = true) String importItems
+                                                ) {
         Map<String, Object> result;
 //        if ("application/zip".equals(file.getContentType())) {
 //            result = processDefinitionService.importSqlProcessDefinition(loginUser, projectCode, file);
 //        } else {
 //            result = processDefinitionService.importProcessDefinition(loginUser, projectCode, file);
 //        }
-        result = processDefinitionService.importUpdateProcessDefinition(loginUser, projectCode, file);
+        result = processDefinitionService.importUpdateProcessDefinition(loginUser, projectCode, file, importItems);
+        return returnDataList(result);
+    }
+
+    /**
+     * parse process definition json
+     *
+     * @param loginUser login user
+     * @param projectCode project code
+     * @param file resource file
+     * @return import result code
+     */
+    @Operation(summary = "parseJsonProcessDefinition", description = "PARSE_JSON_PROCESS_DEFINITION_NOTES")
+    @Parameters({
+            @Parameter(name = "file", description = "RESOURCE_FILE", required = true, schema = @Schema(implementation = MultipartFile.class))
+    })
+    @PostMapping(value = "/parseJson")
+    @ApiException(IMPORT_PROCESS_DEFINE_ERROR)
+    public Result parseJsonProcessDefinition(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                                @Parameter(name = "projectCode", description = "PROJECT_CODE", required = true) @PathVariable long projectCode,
+                                                @RequestParam("file") MultipartFile file
+                                                ) {
+        Map<String, Object> result;
+        result = processDefinitionService.parseJsonProcessDefinition(loginUser, projectCode, file);
         return returnDataList(result);
     }
 

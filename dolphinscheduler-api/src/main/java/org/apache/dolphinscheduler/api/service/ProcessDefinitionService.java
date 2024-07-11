@@ -294,9 +294,23 @@ public interface ProcessDefinitionService {
      * @param loginUser login user
      * @param projectCode project code
      * @param file process metadata json file
+     * @param importItems items to import
      * @return import process
      */
     Map<String, Object> importUpdateProcessDefinition(User loginUser,
+                                                      long projectCode,
+                                                      MultipartFile file,
+                                                      String importItems);
+
+    /**
+     * parse process definition json
+     *
+     * @param loginUser login user
+     * @param projectCode project code
+     * @param file process metadata json file
+     * @return import process
+     */
+    Map<String, Object> parseJsonProcessDefinition(User loginUser,
                                                       long projectCode,
                                                       MultipartFile file);
 
