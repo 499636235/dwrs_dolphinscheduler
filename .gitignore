@@ -7,7 +7,7 @@
 .target
 .idea/
 !.idea/icon.png
-.run/
+
 target/
 dist/
 all-dependencies.txt
