@@ -62,7 +62,9 @@ export default defineComponent({
       getTableData,
       batchDeleteWorkflow,
       batchExportWorkflow,
-      batchCopyWorkflow
+      batchCopyWorkflow,
+      batchReleaseWorkflow,
+      batchReleaseScheduler,
     } = useTable()
 
     const requestData = () => {
@@ -125,6 +127,22 @@ export default defineComponent({
       })
     }
 
+    const handleBatchUpLineWorkflow = () => {
+      batchReleaseWorkflow('ONLINE')
+    }
+
+    const handleBatchDownLineWorkflow = () => {
+      batchReleaseWorkflow('OFFLINE')
+    }
+
+    const handleBatchUpLineScheduler = () => {
+      batchReleaseScheduler('ONLINE')
+    }
+
+    const handleBatchDownLineScheduler = () => {
+      batchReleaseScheduler('OFFLINE')
+    }
+
     const trim = getCurrentInstance()?.appContext.config.globalProperties.trim
 
     watch(useI18n().locale, () => {
@@ -149,6 +167,10 @@ export default defineComponent({
       batchCopyWorkflow,
       handleCopyUpdateList,
       handleBatchStartUpdateList,
+      handleBatchUpLineWorkflow,
+      handleBatchDownLineWorkflow,
+      handleBatchUpLineScheduler,
+      handleBatchDownLineScheduler,
       confirmToSetWorkflowTiming,
       ...toRefs(variables),
       uiSettingStore,
@@ -238,7 +260,7 @@ export default defineComponent({
                             <NButton
                               tag='div'
                               size='small'
-                              type='primary'
+                              type='error'
                               disabled={this.checkedRowKeys.length <= 0}
                               class='btn-delete-all'
                             >
@@ -298,6 +320,98 @@ export default defineComponent({
                       >
                         {t('project.workflow.batch_start')}
                       </NButton>
+                    )
+                  }}
+                </NTooltip>
+                <NTooltip>
+                  {{
+                    default: () => t('project.workflow.batch_up_line'),
+                    trigger: () => (
+                        <NPopconfirm onPositiveClick={this.handleBatchUpLineWorkflow}>
+                          {{
+                            default: () => t('project.workflow.confirm_to_online'),
+                            trigger: () => (
+                                <NButton
+                                    tag='div'
+                                    size='small'
+                                    type='error'
+                                    disabled={this.checkedRowKeys.length <= 0}
+                                    class='btn-delete-all'
+                                >
+                                  {t('project.workflow.batch_up_line')}
+                                </NButton>
+                            )
+                          }}
+                        </NPopconfirm>
+                    )
+                  }}
+                </NTooltip>
+                <NTooltip>
+                  {{
+                    default: () => t('project.workflow.batch_time_up_line'),
+                    trigger: () => (
+                        <NPopconfirm onPositiveClick={this.handleBatchUpLineScheduler}>
+                          {{
+                            default: () => t('project.workflow.time_to_online'),
+                            trigger: () => (
+                                <NButton
+                                    tag='div'
+                                    size='small'
+                                    type='error'
+                                    disabled={this.checkedRowKeys.length <= 0}
+                                    class='btn-delete-all'
+                                >
+                                  {t('project.workflow.batch_time_up_line')}
+                                </NButton>
+                            )
+                          }}
+                        </NPopconfirm>
+                    )
+                  }}
+                </NTooltip>
+                <NTooltip>
+                  {{
+                    default: () => t('project.workflow.batch_down_line'),
+                    trigger: () => (
+                        <NPopconfirm onPositiveClick={this.handleBatchDownLineWorkflow}>
+                          {{
+                            default: () => t('project.workflow.confirm_to_offline'),
+                            trigger: () => (
+                                <NButton
+                                    tag='div'
+                                    size='small'
+                                    type='warning'
+                                    disabled={this.checkedRowKeys.length <= 0}
+                                    class='btn-delete-all'
+                                >
+                                  {t('project.workflow.batch_down_line')}
+                                </NButton>
+                            )
+                          }}
+                        </NPopconfirm>
+                    )
+                  }}
+                </NTooltip>
+                <NTooltip>
+                  {{
+                    default: () => t('project.workflow.batch_time_down_line'),
+                    trigger: () => (
+                        <NPopconfirm onPositiveClick={this.handleBatchDownLineScheduler}>
+                          {{
+                            default: () => t('project.workflow.time_to_offline'),
+                            trigger: () => (
+                                <NButton
+                                    tag='div'
+                                    size='small'
+                                    type='warning'
+                                    disabled={this.checkedRowKeys.length <= 0}
+                                    class='btn-delete-all'
+                                >
+                                  {t('project.workflow.batch_time_down_line')}
+                                </NButton>
+                            )
+                          }}
+                        </NPopconfirm>
                     )
                   }}
                 </NTooltip>

@@ -25,6 +25,7 @@ import {
   CreateScheduleReq,
   ProcessDefinitionCodeReq
 } from './types'
+import {CodesReq} from "@/service/modules/process-definition/types";
 
 export function queryScheduleListPaging(
   params: ListReq & ProcessDefinitionCodeReq,
@@ -111,3 +112,11 @@ export function online(projectCode: number, id: number): any {
     method: 'post'
   })
 }
+
+// export function batchReleaseSchedulerByIds(data: CodesReq, projectCode: number): any {
+//   return axios({
+//     url: `/projects/${projectCode}/schedules/batch-release`,
+//     method: 'post',
+//     data
+//   })
+// }

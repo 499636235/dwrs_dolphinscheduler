@@ -379,6 +379,25 @@ export function useTable() {
     })
   }
 
+  const batchReleaseWorkflow = (releaseType: string) => {
+    variables.tableData.map((row: any) => {
+      // 判断row.code是否在checkedRowKeys中
+      if ( !variables.checkedRowKeys.includes(row.code) || row.releaseState === releaseType ) return
+      release({ releaseState: releaseType }, variables.projectCode, row.code).then(() => {
+        window.$message.success(t('project.workflow.success'))
+      })
+    })
+    // 使用setTimeout函数等待5秒
+    setTimeout(function() {
+      variables.checkedRowKeys = []
+      getTableData({
+        pageSize: variables.pageSize,
+        pageNo: variables.page,
+        searchVal: variables.searchVal
+      })
+    }, 1000)
+  }
+
   const releaseScheduler = (row: any) => {
     if (row.schedule) {
       let handle = online
@@ -394,6 +413,29 @@ export function useTable() {
         })
       })
     }
+  }
+
+  const batchReleaseScheduler = (releaseType: string) => {
+    let handle = online
+    if (releaseType === 'OFFLINE') {
+      handle = offline
+    }
+    variables.tableData.map((row: any) => {
+      // 判断row.code是否在checkedRowKeys中
+      if ( !variables.checkedRowKeys.includes(row.code) || !(row.schedule) || row.schedule.releaseState === releaseType ) return
+      handle(variables.projectCode, row.schedule.id).then(() => {
+        window.$message.success(t('project.workflow.success'))
+      })
+    })
+    // 使用setTimeout函数等待5秒
+    setTimeout(function() {
+      variables.checkedRowKeys = []
+      getTableData({
+        pageSize: variables.pageSize,
+        pageNo: variables.page,
+        searchVal: variables.searchVal
+      })
+    }, 1000)
   }
 
   const copyWorkflow = (row: any) => {
@@ -476,6 +518,8 @@ export function useTable() {
     getTableData,
     batchDeleteWorkflow,
     batchExportWorkflow,
-    batchCopyWorkflow
+    batchCopyWorkflow,
+    batchReleaseWorkflow,
+    batchReleaseScheduler,
   }
 }

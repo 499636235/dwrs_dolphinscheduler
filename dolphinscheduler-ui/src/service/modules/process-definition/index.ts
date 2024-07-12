@@ -205,6 +205,14 @@ export function release(
   })
 }
 
+// export function batchReleaseByCodes(data: CodesReq, code: number): any {
+//   return axios({
+//     url: `/projects/${code}/process-definition/batch-release`,
+//     method: 'post',
+//     data
+//   })
+// }
+
 export function getTasksByDefinitionList(
   projectCode: number,
   processCode: number
