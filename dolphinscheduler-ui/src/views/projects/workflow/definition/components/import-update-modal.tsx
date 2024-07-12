@@ -42,8 +42,6 @@ export default defineComponent({
     }
 
     const handleImportUpdate = () => {
-      // console.log(transferValue.value)
-      // importState.importForm.importItems = transferValue.value
       handleImportUpdateDefinition()
     }
 
@@ -54,6 +52,7 @@ export default defineComponent({
     const customRequest = ({ file }: any) => {
       importState.importForm.name = file.name
       importState.importForm.file = file.file
+      handleParseJson()
     }
     const trim = getCurrentInstance()?.appContext.config.globalProperties.trim
 
@@ -117,6 +116,8 @@ export default defineComponent({
                   v-model:value={this.importItems}
                   style="width: 100%"
                   options={this.workflowOptions}
+                  source-filterable
+                  target-filterable
                 />
               </NFormItem>
             </NForm>

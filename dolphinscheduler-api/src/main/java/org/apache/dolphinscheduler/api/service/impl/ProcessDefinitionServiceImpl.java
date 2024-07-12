@@ -361,7 +361,7 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
 
         processDefinition.setId(processDefinitionInJson.getId());
 
-        result = createDagDefine(loginUser, taskRelationList, processDefinition, taskDefinitionLogs, processDefinitionInJson.getId());
+        result = insertDagDefine(loginUser, taskRelationList, processDefinition, taskDefinitionLogs);
         if (result.get(Constants.STATUS) == Status.SUCCESS) {
             listenerEventAlertManager.publishProcessDefinitionCreatedListenerEvent(loginUser, processDefinition,
                     taskDefinitionLogs,
@@ -471,11 +471,10 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
         return result;
     }
 
-    protected Map<String, Object> createDagDefine(User loginUser,
+    protected Map<String, Object> insertDagDefine(User loginUser,
                                                   List<ProcessTaskRelationLog> taskRelationList,
                                                   ProcessDefinition processDefinition,
-                                                  List<TaskDefinitionLog> taskDefinitionLogs,
-                                                  Integer processDefinitionId) {
+                                                  List<TaskDefinitionLog> taskDefinitionLogs) {
         Map<String, Object> result = new HashMap<>();
         int saveTaskResult = processService.saveTaskDefine(loginUser, processDefinition.getProjectCode(),
                 taskDefinitionLogs, Boolean.TRUE);
@@ -1326,7 +1325,7 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
             return result;
         }
         for (DagDataSchedule dagDataSchedule : dagDataScheduleList) {
-            if (!importItemList.contains(dagDataSchedule.getProcessDefinition().getName())) {
+            if (!importItemList.contains(String.valueOf(dagDataSchedule.getProcessDefinition().getCode()))) {
                 continue;
             }
             if (!checkAndUpsert(loginUser, projectCode, result, dagDataSchedule)) {
@@ -1361,9 +1360,11 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
             putMsg(result, Status.DATA_IS_NULL, "fileContent");
             return result;
         }
-        List<String> processDefinitionList = new ArrayList<>();
+        List<ProcessDefinition> processDefinitionList = new ArrayList<>();
         for (DagDataSchedule dagDataSchedule : dagDataScheduleList) {
-            processDefinitionList.add(dagDataSchedule.getProcessDefinition().getName());
+            ProcessDefinition processDefinition = dagDataSchedule.getProcessDefinition();
+            processDefinition.setName(getImportUpsertType(projectCode, new HashMap<>(), dagDataSchedule) + "\n" + processDefinition.getName());
+            processDefinitionList.add(processDefinition);
         }
         result.put(Constants.DATA_LIST, processDefinitionList);
         return result;
@@ -1725,7 +1726,7 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
             return false;
         }
 
-        Map<String, Object> upsertResult;
+        Map<String, Object> upsertResult = new HashMap<>();
         ProcessDefinition processDefinition = dagDataSchedule.getProcessDefinition();
         long projectCodeInJson = processDefinition.getProjectCode();
         ProcessDefinition processDefinitionSelect = processDefinitionMapper.queryByCode(processDefinition.getCode());
@@ -1740,13 +1741,8 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
                         JSONUtils.toPrettyJsonString(dagDataSchedule.getTaskDefinitionList()),
                         processDefinition.getExecutionType());
             } else {
-                // 工作流存在 但 项目号不同，重新创建
-                upsertResult = createProcessDefinition(loginUser, projectCode, processDefinition.getName(),
-                        processDefinition.getDescription(), processDefinition.getGlobalParams(),
-                        processDefinition.getLocations(), processDefinition.getTimeout(),
-                        JSONUtils.toPrettyJsonString(dagDataSchedule.getProcessTaskRelationList()),
-                        JSONUtils.toPrettyJsonString(dagDataSchedule.getTaskDefinitionList()), "",
-                        processDefinition.getExecutionType());
+                // 工作流存在 但 项目号不同，应该使用原生的导入工作流
+                putMsg(result, Status.IMPORT_PROCESS_DEFINE_ERROR);
             }
         } else {
             // 工作流不存在
@@ -1756,13 +1752,8 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
                         JSONUtils.toPrettyJsonString(dagDataSchedule.getProcessTaskRelationList()),
                         JSONUtils.toPrettyJsonString(dagDataSchedule.getTaskDefinitionList()));
             } else {
-                // 工作流不存在 但 项目号不同，重新创建
-                upsertResult = createProcessDefinition(loginUser, projectCode, processDefinition.getName(),
-                        processDefinition.getDescription(), processDefinition.getGlobalParams(),
-                        processDefinition.getLocations(), processDefinition.getTimeout(),
-                        JSONUtils.toPrettyJsonString(dagDataSchedule.getProcessTaskRelationList()),
-                        JSONUtils.toPrettyJsonString(dagDataSchedule.getTaskDefinitionList()), "",
-                        processDefinition.getExecutionType());
+                // 工作流不存在 但 项目号不同，应该使用原生的导入工作流
+                putMsg(result, Status.IMPORT_PROCESS_DEFINE_ERROR);
             }
 
 
@@ -1777,6 +1768,40 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
         log.info("Import process definition complete, projectCode:{}, processDefinitionCode:{}.", projectCode,
                 processDefinition.getCode());
         return true;
+    }
+
+    /**
+     * get import upsert type
+     */
+    protected String getImportUpsertType(long projectCode,
+                                         Map<String, Object> result,
+                                         DagDataSchedule dagDataSchedule) {
+        if (!checkImportanceParams(dagDataSchedule, result)) {
+            return "缺少参数";
+        }
+
+        ProcessDefinition processDefinition = dagDataSchedule.getProcessDefinition();
+        long projectCodeInJson = processDefinition.getProjectCode();
+        ProcessDefinition processDefinitionSelect = processDefinitionMapper.queryByCode(processDefinition.getCode());
+        if (processDefinitionSelect != null) {
+            // 工作流存在
+            if (projectCode == processDefinitionSelect.getProjectCode()) {
+                // 工作流存在 且 项目号相同，更新
+                return "更新";
+            } else {
+                // 工作流存在 但 项目号不同，应该使用原生的导入工作流
+                return "非本项目工作流";
+            }
+        } else {
+            // 工作流不存在
+            if (projectCode == projectCodeInJson) {
+                // 工作流不存在 且 项目号相同，用json的id和code创建
+                return "硬导入";
+            } else {
+                // 工作流不存在 但 项目号不同，应该使用原生的导入工作流
+                return "非本项目工作流";
+            }
+        }
     }
 
     /**

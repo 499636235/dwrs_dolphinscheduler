@@ -125,8 +125,11 @@ export function useModal(
       const code = Number(router.currentRoute.value.params.projectCode)
       const result = await parseJsonProcessDefinition(formData, code)
       state.workflowOptions = []
-      result.map((item: string) => {
-        state.workflowOptions.push({ label: item, value: item })
+      state.importItems = []
+      result.map((item: any) => {
+        const disabled = code !== item.projectCode
+        state.workflowOptions.push({ label: item.name, value: item.code, disabled: disabled })
+        if ( !disabled ) { state.importItems.push(item.code) }
       })
       window.$message.success(t('project.workflow.success'))
       state.parseing = false
