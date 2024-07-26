@@ -1799,12 +1799,7 @@ public class ProcessServiceImpl implements ProcessService {
         int insertLog = processDefineLogMapper.insert(processDefinitionLog);
         int result = 1;
         if (Boolean.TRUE.equals(syncDefine)) {
-            if (processDefinition.getId() != null) {
-                processDefinitionLog.setId(processDefinition.getId());
-                result = processDefineMapper.insert(processDefinitionLog);
-            } else {
-                result = 0;
-            }
+            result = processDefineMapper.insert(processDefinitionLog);
         }
         return (insertLog & result) > 0 ? insertVersion : 0;
     }

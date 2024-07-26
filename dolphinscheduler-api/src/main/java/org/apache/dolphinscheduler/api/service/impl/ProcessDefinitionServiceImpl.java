@@ -359,8 +359,6 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
                         processDefinitionInJson.getLocations(), processDefinitionInJson.getTimeout(), loginUser.getId());
         processDefinition.setExecutionType(processDefinitionInJson.getExecutionType());
 
-        processDefinition.setId(processDefinitionInJson.getId());
-
         result = insertDagDefine(loginUser, taskRelationList, processDefinition, taskDefinitionLogs);
         if (result.get(Constants.STATUS) == Status.SUCCESS) {
             listenerEventAlertManager.publishProcessDefinitionCreatedListenerEvent(loginUser, processDefinition,
