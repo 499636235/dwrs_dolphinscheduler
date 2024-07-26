@@ -31,6 +31,7 @@ export function useForm(
 
   const resetForm = () => {
     variables.model = {
+      code: '',
       projectName: '',
       description: '',
       userName: (userStore.getUserInfo as UserInfoRes).userName
@@ -40,6 +41,7 @@ export function useForm(
   const variables = reactive({
     projectFormRef: ref(),
     model: {
+      code: '',
       projectName: '',
       description: '',
       userName: (userStore.getUserInfo as UserInfoRes).userName

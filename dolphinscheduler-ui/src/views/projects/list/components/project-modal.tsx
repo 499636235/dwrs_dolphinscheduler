@@ -54,10 +54,12 @@ const ProjectModal = defineComponent({
 
     const cancelModal = () => {
       if (props.statusRef === 0) {
+        variables.model.code = ''
         variables.model.projectName = ''
         variables.model.description = ''
       } else {
         variables.model.userName = props.row.userName
+        variables.model.code = props.row.code
         variables.model.projectName = props.row.name
         variables.model.description = props.row.description
       }
@@ -74,12 +76,14 @@ const ProjectModal = defineComponent({
       () => props.statusRef,
       () => {
         if (props.statusRef === 0) {
+          variables.model.code = ''
           variables.model.projectName = ''
           variables.model.userName = (
             userStore.getUserInfo as UserInfoRes
           ).userName
           variables.model.description = ''
         } else {
+          variables.model.code = props.row.code
           variables.model.projectName = props.row.name
           variables.model.userName = props.row.userName
           variables.model.description = props.row.description
@@ -90,6 +94,7 @@ const ProjectModal = defineComponent({
     watch(
       () => props.row,
       () => {
+        variables.model.code = props.row.code
         variables.model.projectName = props.row.name
         variables.model.userName = props.row.userName
         variables.model.description = props.row.description
@@ -122,6 +127,15 @@ const ProjectModal = defineComponent({
               v-model={[this.model.projectName, 'value']}
               placeholder={t('project.list.project_tips')}
               class='input-project-name'
+            />
+          </NFormItem>
+          <NFormItem label={t('project.list.project_code')} path='projectCode'>
+            <NInput
+                disabled={this.statusRef !== 0}
+                allowInput={this.trim}
+                v-model={[this.model.code, 'value']}
+                placeholder={t('project.list.project_code_tips')}
+                class='input-project-code'
             />
           </NFormItem>
           <NFormItem label={t('project.list.owned_users')} path='userName'>

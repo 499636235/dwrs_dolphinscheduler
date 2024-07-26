@@ -102,6 +102,20 @@ public class ProjectServiceImpl extends BaseServiceImpl implements ProjectServic
     @Override
     @Transactional
     public Result createProject(User loginUser, String name, String desc) {
+        return createProject(loginUser, null, name, desc);
+    }
+    /**
+     * create project with code
+     *
+     * @param loginUser login user
+     * @param code      project code
+     * @param name      project name
+     * @param desc      description
+     * @return returns an error if it exists
+     */
+    @Override
+    @Transactional
+    public Result createProject(User loginUser, Long code, String name, String desc) {
         Result result = new Result();
 
         checkDesc(result, desc);
@@ -123,10 +137,13 @@ public class ProjectServiceImpl extends BaseServiceImpl implements ProjectServic
         Date now = new Date();
 
         try {
+            if (code == null || code == 0) {
+                code = CodeGenerateUtils.getInstance().genCode();
+            }
             project = Project
                     .builder()
                     .name(name)
-                    .code(CodeGenerateUtils.getInstance().genCode())
+                    .code(code)
                     .description(desc)
                     .userId(loginUser.getId())
                     .userName(loginUser.getUserName())

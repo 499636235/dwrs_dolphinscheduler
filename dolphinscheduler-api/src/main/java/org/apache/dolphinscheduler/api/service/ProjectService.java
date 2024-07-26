@@ -41,6 +41,17 @@ public interface ProjectService {
     Result createProject(User loginUser, String name, String desc);
 
     /**
+     * create project
+     *
+     * @param loginUser login user
+     * @param code project code
+     * @param name project name
+     * @param desc description
+     * @return returns an error if it exists
+     */
+    Result createProject(User loginUser, Long code, String name, String desc);
+
+    /**
      * query project details by code
      *
      * @param projectCode project code

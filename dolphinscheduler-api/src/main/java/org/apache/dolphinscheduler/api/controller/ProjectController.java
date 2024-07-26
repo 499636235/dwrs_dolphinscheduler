@@ -84,9 +84,10 @@ public class ProjectController extends BaseController {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiException(CREATE_PROJECT_ERROR)
     public Result createProject(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                @RequestParam(value = "code", required = false) Long code,
                                 @RequestParam("projectName") String projectName,
                                 @RequestParam(value = "description", required = false) String description) {
-        return projectService.createProject(loginUser, projectName, description);
+        return projectService.createProject(loginUser, code, projectName, description);
     }
 
     /**
