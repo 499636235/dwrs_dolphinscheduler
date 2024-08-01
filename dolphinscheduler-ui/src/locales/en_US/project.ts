@@ -394,6 +394,7 @@ export default {
       'The Worker group no longer exists, please select the correct Worker group!',
     environment_name: 'Environment Name',
     task_group_name: 'Task group name',
+    task_group_name_tips: 'Please select a Task group (required)',
     task_group_queue_priority: 'Priority',
     number_of_failed_retries: 'Number of failed retries',
     cpu_quota: 'CPU quota',

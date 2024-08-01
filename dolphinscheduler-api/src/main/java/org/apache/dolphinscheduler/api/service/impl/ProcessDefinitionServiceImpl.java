@@ -93,6 +93,7 @@ import org.apache.dolphinscheduler.dao.entity.TaskInstance;
 import org.apache.dolphinscheduler.dao.entity.TaskMainInfo;
 import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.dao.entity.UserWithProcessDefinitionCode;
+import org.apache.dolphinscheduler.dao.entity.TaskGroup;
 import org.apache.dolphinscheduler.dao.mapper.DataSourceMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionLogMapper;
 import org.apache.dolphinscheduler.dao.mapper.ProcessDefinitionMapper;
@@ -104,6 +105,7 @@ import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionLogMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskDefinitionMapper;
 import org.apache.dolphinscheduler.dao.mapper.TaskInstanceMapper;
 import org.apache.dolphinscheduler.dao.mapper.UserMapper;
+import org.apache.dolphinscheduler.dao.mapper.TaskGroupMapper;
 import org.apache.dolphinscheduler.dao.model.PageListingResult;
 import org.apache.dolphinscheduler.dao.repository.ProcessDefinitionDao;
 import org.apache.dolphinscheduler.dao.repository.ProcessDefinitionLogDao;
@@ -248,6 +250,9 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
 
     @Autowired
     private ListenerEventAlertManager listenerEventAlertManager;
+
+    @Autowired
+    private TaskGroupMapper taskGroupMapper;
 
     /**
      * create process definition
@@ -517,6 +522,16 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
                 throw new ServiceException(Status.DATA_IS_NOT_VALID, taskDefinitionJson);
             }
             for (TaskDefinitionLog taskDefinitionLog : taskDefinitionLogs) {
+
+                // check task group id
+                TaskGroup taskGroup = taskGroupMapper.selectById(taskDefinitionLog.getTaskGroupId());
+                if (null == taskGroup) {
+                    throw new ServiceException(Status.PROCESS_NODE_S_PARAMETER_INVALID, taskDefinitionLog.getName());
+                }
+                if (taskDefinitionLog.getProjectCode() != 0 && taskDefinitionLog.getProjectCode() != taskGroup.getProjectCode()) {
+                    throw new ServiceException(Status.PROCESS_NODE_S_PARAMETER_INVALID, taskDefinitionLog.getName());
+                }
+
                 if (!taskPluginManager.checkTaskParameters(ParametersNode.builder()
                         .taskType(taskDefinitionLog.getTaskType())
                         .taskParams(taskDefinitionLog.getTaskParams())

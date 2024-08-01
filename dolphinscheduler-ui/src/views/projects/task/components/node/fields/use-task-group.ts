@@ -69,7 +69,11 @@ export function useTaskGroup(
         loading,
         clearable: true
       },
-      options
+      options,
+      validate: {
+        required: true,
+        message: t('project.node.task_group_name_tips')
+      }
     },
     {
       type: 'input-number',

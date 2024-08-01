@@ -391,6 +391,7 @@ export default {
     worker_group_tips: '该Worker分组已经不存在，请选择正确的Worker分组！',
     environment_name: '环境名称',
     task_group_name: '任务组名称',
+    task_group_name_tips: '请选择任务组名称(必选)',
     task_group_queue_priority: '组内优先级',
     number_of_failed_retries: '失败重试次数',
     cpu_quota: 'CPU配额',
