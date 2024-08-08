@@ -1743,6 +1743,50 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
         ProcessDefinition processDefinition = dagDataSchedule.getProcessDefinition();
         long projectCodeInJson = processDefinition.getProjectCode();
         ProcessDefinition processDefinitionSelect = processDefinitionMapper.queryByCode(processDefinition.getCode());
+
+        List<TaskDefinition> taskDefinitionList = dagDataSchedule.getTaskDefinitionList();
+        List<ProcessTaskRelation> taskRelationList = dagDataSchedule.getProcessTaskRelationList();
+        // 修改 taskDefinition 版本号
+        if (CollectionUtils.isNotEmpty(taskDefinitionList)) {
+            List<Long> taskDefinitionCodes = taskDefinitionList
+                    .stream()
+                    .map(TaskDefinition::getCode)
+                    .distinct()
+                    .collect(Collectors.toList());
+            Map<Long, TaskDefinition> taskDefinitionMap = taskDefinitionMapper.queryByCodeList(taskDefinitionCodes)
+                    .stream()
+                    .collect(Collectors.toMap(TaskDefinition::getCode, Function.identity()));
+            for (TaskDefinition taskDefinition : taskDefinitionList) {
+                TaskDefinition task = taskDefinitionMap.get(taskDefinition.getCode());
+                if (task == null) {
+                    // 被导入的数据库中不存在，version设置为0
+                    taskDefinition.setVersion(0);
+                } else {
+                    taskDefinition.setVersion(task.getVersion());
+                }
+            }
+
+            for (ProcessTaskRelation processTaskRelation : taskRelationList) {
+                // preTask
+                TaskDefinition preTask = taskDefinitionMap.get(processTaskRelation.getPreTaskCode());
+                if (preTask == null) {
+                    // 被导入的数据库中不存在，version设置为0
+                    processTaskRelation.setPreTaskVersion(0);
+                } else {
+                    processTaskRelation.setPreTaskVersion(preTask.getVersion());
+                }
+                // postTask
+                TaskDefinition postTask = taskDefinitionMap.get(processTaskRelation.getPreTaskCode());
+                if (postTask == null) {
+                    // 被导入的数据库中不存在，version设置为0
+                    processTaskRelation.setPostTaskVersion(0);
+                } else {
+                    processTaskRelation.setPostTaskVersion(postTask.getVersion());
+                }
+            }
+        }
+
+
         if (processDefinitionSelect != null) {
             // 工作流存在
             if (projectCode == processDefinitionSelect.getProjectCode()) {
@@ -1750,8 +1794,8 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
                 upsertResult = updateProcessDefinition(loginUser, projectCode, processDefinition.getName(),
                         processDefinition.getCode(), processDefinition.getDescription(), processDefinition.getGlobalParams(),
                         processDefinition.getLocations(), processDefinition.getTimeout(),
-                        JSONUtils.toPrettyJsonString(dagDataSchedule.getProcessTaskRelationList()),
-                        JSONUtils.toPrettyJsonString(dagDataSchedule.getTaskDefinitionList()),
+                        JSONUtils.toPrettyJsonString(taskRelationList),
+                        JSONUtils.toPrettyJsonString(taskDefinitionList),
                         processDefinition.getExecutionType());
             } else {
                 // 工作流存在 但 项目号不同，应该使用原生的导入工作流
@@ -1762,8 +1806,8 @@ public class ProcessDefinitionServiceImpl extends BaseServiceImpl implements Pro
             if (projectCode == projectCodeInJson) {
                 // 工作流不存在 且 项目号相同，用json的id和code创建
                 upsertResult = createProcessDefinition(loginUser, projectCode, processDefinition,
-                        JSONUtils.toPrettyJsonString(dagDataSchedule.getProcessTaskRelationList()),
-                        JSONUtils.toPrettyJsonString(dagDataSchedule.getTaskDefinitionList()));
+                        JSONUtils.toPrettyJsonString(taskRelationList),
+                        JSONUtils.toPrettyJsonString(taskDefinitionList));
             } else {
                 // 工作流不存在 但 项目号不同，应该使用原生的导入工作流
                 putMsg(result, Status.IMPORT_PROCESS_DEFINE_ERROR);
