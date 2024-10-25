@@ -55,6 +55,18 @@
         from t_ds_tenant
     </select>
 
+    <select id="queryTenantListByProjectId" resultType="Integer">
+        select id
+        from t_ds_tenant a
+        where exists(
+                      select 1
+                      from t_ds_relation_project_tenant b
+                               join t_ds_project c
+                                    on b.project_id = c.id
+                                        and c.code = #{projectCode}
+                      where b.tenant_id = a.id)
+    </select>
+
     <select id="queryTenantPaging" resultType="org.apache.dolphinscheduler.dao.entity.Tenant">
         SELECT
         <include refid="baseSqlV2">

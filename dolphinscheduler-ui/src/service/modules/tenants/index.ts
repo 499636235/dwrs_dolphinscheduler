@@ -17,6 +17,7 @@
 
 import { axios } from '@/service/service'
 import { ListReq, TenantCodeReq, TenantReq, IdReq } from './types'
+import {GrantProject} from './types'
 
 export function queryTenantListPaging(params: ListReq): any {
   return axios({
@@ -41,6 +42,13 @@ export function queryTenantList(): any {
   })
 }
 
+export function queryTenantListByProjectCode(projectCode: number): any {
+  return axios({
+    url: `/tenants/list/${projectCode}`,
+    method: 'get'
+  })
+}
+
 export function verifyTenantCode(params: TenantCodeReq): any {
   return axios({
     url: '/tenants/verify-code',
@@ -61,5 +69,21 @@ export function deleteTenantById(id: number): any {
   return axios({
     url: `/tenants/${id}`,
     method: 'delete'
+  })
+}
+
+export function revokeProjectById(data: GrantProject) {
+  return axios({
+    url: '/tenants/revoke-project-by-id',
+    method: 'post',
+    data
+  })
+}
+
+export function grantProjectWithReadPerm(data: GrantProject) {
+  return axios({
+    url: 'tenants/grant-project-with-read-perm',
+    method: 'post',
+    data
   })
 }

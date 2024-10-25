@@ -29,6 +29,7 @@ import { useI18n } from 'vue-i18n'
 import TenantModal from './components/tenant-modal'
 import Card from '@/components/card'
 import Search from '@/components/input-search'
+import AuthorizeModal from "./components/authorize-modal";
 
 const tenementManage = defineComponent({
   name: 'tenement-manage',
@@ -51,6 +52,10 @@ const tenementManage = defineComponent({
 
     const onCancelModal = () => {
       variables.showModalRef = false
+    }
+
+    const onAuthorizeModalCancel = () => {
+      variables.showAuthorizeModalRef = false
     }
 
     const onConfirmModal = () => {
@@ -85,6 +90,7 @@ const tenementManage = defineComponent({
       requestData,
       handleModalChange,
       onCancelModal,
+      onAuthorizeModalCancel,
       onConfirmModal,
       handleSearch,
       handleChangePageSize,
@@ -148,6 +154,12 @@ const tenementManage = defineComponent({
           row={this.row}
           onCancelModal={this.onCancelModal}
           onConfirmModal={this.onConfirmModal}
+        />
+        <AuthorizeModal
+            show={this.showAuthorizeModalRef}
+            type={this.authorizeType}
+            row={this.row}
+            onCancel={this.onAuthorizeModalCancel}
         />
       </NSpace>
     )

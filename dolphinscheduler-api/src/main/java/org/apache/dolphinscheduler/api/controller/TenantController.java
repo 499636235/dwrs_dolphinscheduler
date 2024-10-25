@@ -23,6 +23,8 @@ import static org.apache.dolphinscheduler.api.enums.Status.QUERY_TENANT_LIST_ERR
 import static org.apache.dolphinscheduler.api.enums.Status.QUERY_TENANT_LIST_PAGING_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.UPDATE_TENANT_ERROR;
 import static org.apache.dolphinscheduler.api.enums.Status.VERIFY_OS_TENANT_CODE_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.GRANT_PROJECT_ERROR;
+import static org.apache.dolphinscheduler.api.enums.Status.REVOKE_PROJECT_ERROR;
 
 import org.apache.dolphinscheduler.api.exceptions.ApiException;
 import org.apache.dolphinscheduler.api.service.TenantService;
@@ -34,6 +36,7 @@ import org.apache.dolphinscheduler.dao.entity.User;
 import org.apache.dolphinscheduler.plugin.task.api.utils.ParameterUtils;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -136,6 +139,22 @@ public class TenantController extends BaseController {
     }
 
     /**
+     * tenant list
+     *
+     * @param loginUser login user
+     * @return tenant list
+     */
+    @Operation(summary = "queryTenantList", description = "QUERY_TENANT_LIST_NOTES")
+    @GetMapping(value = "/list/{projectCode}")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiException(QUERY_TENANT_LIST_ERROR)
+    public Result<List<Tenant>> queryTenantListByProjectCode(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                                @PathVariable(value = "projectCode") Long projectCode) {
+        List<Tenant> tenants = tenantService.queryTenantListByProjectCode(loginUser, projectCode);
+        return Result.success(tenants);
+    }
+
+    /**
      * update tenant
      *
      * @param loginUser login user
@@ -203,6 +222,52 @@ public class TenantController extends BaseController {
                                             @RequestParam(value = "tenantCode") String tenantCode) {
         tenantService.verifyTenantCode(tenantCode);
         return Result.success(true);
+    }
+
+    /**
+     * grant project with read permission
+     *
+     * @param loginUser login user
+     * @param id tenant id
+     * @param projectIds project id array
+     * @return grant result code
+     */
+    @Operation(summary = "grantProjectWithReadPerm", description = "GRANT_PROJECT_WITH_READ_PERM_NOTES")
+    @Parameters({
+            @Parameter(name = "id", description = "TENANT_ID", required = true, schema = @Schema(implementation = int.class, example = "100")),
+            @Parameter(name = "projectIds", description = "PROJECT_IDS", required = true, schema = @Schema(implementation = String.class))
+    })
+    @PostMapping(value = "/grant-project-with-read-perm")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiException(GRANT_PROJECT_ERROR)
+    public Result grantProjectWithReadPerm(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                           @RequestParam(value = "id") int id,
+                                           @RequestParam(value = "projectIds") String projectIds) {
+        Map<String, Object> result = tenantService.grantProjectWithReadPerm(loginUser, id, projectIds);
+        return returnDataList(result);
+    }
+
+    /**
+     * revoke project By Id
+     *
+     * @param loginUser login user
+     * @param id tenant id
+     * @param projectIds project id array
+     * @return revoke result code
+     */
+    @Operation(summary = "revokeProjectById", description = "REVOKE_PROJECT_NOTES")
+    @Parameters({
+            @Parameter(name = "id", description = "TENANT_ID", required = true, schema = @Schema(implementation = int.class, example = "100")),
+            @Parameter(name = "projectIds", description = "PROJECT_IDS", required = true, schema = @Schema(implementation = String.class))
+    })
+    @PostMapping(value = "/revoke-project-by-id")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiException(REVOKE_PROJECT_ERROR)
+    public Result revokeProjectById(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                    @RequestParam(value = "id") int id,
+                                    @RequestParam(value = "projectIds") String projectIds) {
+        Map<String, Object> result = tenantService.revokeProjectById(loginUser, id, projectIds);
+        return returnDataList(result);
     }
 
 }

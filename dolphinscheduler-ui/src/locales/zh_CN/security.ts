@@ -33,7 +33,8 @@ export default {
     description_tips: '请输入描述',
     delete_confirm: '确定删除吗?',
     edit: '编辑',
-    delete: '删除'
+    delete: '删除',
+    project: '项目'
   },
   alarm_group: {
     create_alarm_group: '创建告警组',

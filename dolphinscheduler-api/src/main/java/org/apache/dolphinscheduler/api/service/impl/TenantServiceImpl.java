@@ -30,27 +30,15 @@ import org.apache.dolphinscheduler.api.utils.PageInfo;
 import org.apache.dolphinscheduler.api.utils.RegexUtils;
 import org.apache.dolphinscheduler.common.constants.Constants;
 import org.apache.dolphinscheduler.common.enums.AuthorizationType;
-import org.apache.dolphinscheduler.dao.entity.ProcessInstance;
+import org.apache.dolphinscheduler.dao.entity.*;
 import org.apache.dolphinscheduler.dao.entity.Queue;
-import org.apache.dolphinscheduler.dao.entity.Schedule;
-import org.apache.dolphinscheduler.dao.entity.Tenant;
-import org.apache.dolphinscheduler.dao.entity.User;
-import org.apache.dolphinscheduler.dao.mapper.ProcessInstanceMapper;
-import org.apache.dolphinscheduler.dao.mapper.ScheduleMapper;
-import org.apache.dolphinscheduler.dao.mapper.TenantMapper;
-import org.apache.dolphinscheduler.dao.mapper.UserMapper;
+import org.apache.dolphinscheduler.dao.mapper.*;
 import org.apache.dolphinscheduler.plugin.storage.api.StorageOperate;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -85,6 +73,12 @@ public class TenantServiceImpl extends BaseServiceImpl implements TenantService 
 
     @Autowired(required = false)
     private StorageOperate storageOperate;
+
+    @Autowired
+    private ProjectTenantMapper projectTenantMapper;
+
+    @Autowired
+    private ProjectMapper projectMapper;
 
     /**
      * Check the tenant new object valid or not
@@ -288,6 +282,22 @@ public class TenantServiceImpl extends BaseServiceImpl implements TenantService 
     }
 
     /**
+     * query tenant list
+     *
+     * @param loginUser login user
+     * @return tenant list
+     */
+    @Override
+    public List<Tenant> queryTenantListByProjectCode(User loginUser, Long projectCode) {
+
+        List<Integer> ids = tenantMapper.queryTenantListByProjectId(projectCode);
+        if (CollectionUtils.isEmpty(ids)) {
+            return Collections.emptyList();
+        }
+        return tenantMapper.selectBatchIds(ids);
+    }
+
+    /**
      * verify tenant code
      *
      * @param tenantCode tenant code
@@ -349,4 +359,96 @@ public class TenantServiceImpl extends BaseServiceImpl implements TenantService 
         tenantMapper.insert(tenant);
         return tenant;
     }
+
+    /**
+     * grant project with read permission
+     *
+     * @param loginUser login user
+     * @param id tenant id
+     * @param projectIds project id array
+     * @return grant result code
+     */
+    @Override
+    @Transactional(rollbackFor = RuntimeException.class)
+    public Map<String, Object> grantProjectWithReadPerm(User loginUser, int id, String projectIds) {
+        Map<String, Object> result = new HashMap<>();
+        result.put(Constants.STATUS, false);
+
+        if (resourcePermissionCheckService.functionDisabled()) {
+            putMsg(result, Status.FUNCTION_DISABLED);
+            return result;
+        }
+        // check exist
+        Tenant tenant = this.tenantMapper.selectById(id);
+        if (tenant == null) {
+            putMsg(result, Status.TENANT_NOT_EXIST, id);
+            return result;
+        }
+
+        if (check(result, StringUtils.isEmpty(projectIds), Status.SUCCESS)) {
+            return result;
+        }
+        Arrays.stream(projectIds.split(Constants.COMMA)).distinct().forEach(projectId -> {
+            ProjectTenant projectTenantOld = projectTenantMapper.queryProjectRelation(Integer.parseInt(projectId), id);
+            if (projectTenantOld != null) {
+                projectTenantMapper.deleteProjectRelation(Integer.parseInt(projectId), id);
+            }
+            Date now = new Date();
+            ProjectTenant projectTenant = new ProjectTenant();
+            projectTenant.setTenantId(id);
+            projectTenant.setProjectId(Integer.parseInt(projectId));
+            projectTenant.setPerm(1);
+            projectTenant.setCreateTime(now);
+            projectTenant.setUpdateTime(now);
+            projectTenantMapper.insert(projectTenant);
+        });
+        putMsg(result, Status.SUCCESS);
+
+        return result;
+    }
+
+    /**
+     * revoke the project permission for specified user by id
+     * @param loginUser     Login user
+     * @param id        tenant id
+     * @param projectIds   project id array
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = RuntimeException.class)
+    public Map<String, Object> revokeProjectById(User loginUser, int id, String projectIds) {
+        Map<String, Object> result = new HashMap<>();
+        result.put(Constants.STATUS, false);
+
+        if (resourcePermissionCheckService.functionDisabled()) {
+            putMsg(result, Status.FUNCTION_DISABLED);
+            return result;
+        }
+        // 1. only admin can operate
+        if (this.check(result, !this.isAdmin(loginUser), Status.USER_NO_OPERATION_PERM)) {
+            return result;
+        }
+
+        // 2. check if tenant is existed
+        Tenant tenant = this.tenantMapper.selectById(id);
+        if (tenant == null) {
+            this.putMsg(result, Status.TENANT_NOT_EXIST, id);
+            return result;
+        }
+
+        Arrays.stream(projectIds.split(",")).distinct().forEach(projectId -> {
+            // 3. check if project is existed
+            Project project = this.projectMapper.queryDetailById(Integer.parseInt(projectId));
+            if (project == null) {
+                this.putMsg(result, Status.PROJECT_NOT_FOUND, Integer.parseInt(projectId));
+            } else {
+                // 4. delete the relationship between project and tenant
+                this.projectTenantMapper.deleteProjectRelation(project.getId(), tenant.getId());
+            }
+        });
+
+        this.putMsg(result, Status.SUCCESS);
+        return result;
+    }
+
 }

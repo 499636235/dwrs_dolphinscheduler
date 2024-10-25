@@ -40,7 +40,7 @@ import {
 import { parseTime } from '@/common/common'
 import { EnvironmentItem } from '@/service/modules/environment/types'
 import { ITimingState, ProcessInstanceReq, ProcessInstancesReq } from './types'
-import { queryTenantList } from '@/service/modules/tenants'
+import {queryTenantList, queryTenantListByProjectCode} from '@/service/modules/tenants'
 
 export function useModal(
   state: any,
@@ -95,7 +95,7 @@ export function useModal(
     await state.importFormRef.validate()
 
     if (state.importItems.length === 0) return
-    
+
     if (state.saving) return
     state.saving = true
     try {
@@ -338,7 +338,7 @@ export function useModal(
   }
 
   const getTenantList = () => {
-    queryTenantList().then((res: any) => {
+    queryTenantListByProjectCode(variables.projectCode).then((res: any) => {
       variables.tenantList = res.map((item: any) => ({
         label: item.tenantCode,
         value: item.tenantCode

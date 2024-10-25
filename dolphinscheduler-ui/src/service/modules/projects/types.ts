@@ -28,6 +28,13 @@ interface ListIdReq {
   searchVal?: string
 }
 
+interface ListTenantIdReq {
+  tenantId?: number
+  pageNo: number
+  pageSize: number
+  searchVal?: string
+}
+
 interface ProjectsReq {
   description?: string
   projectName: string

@@ -98,4 +98,6 @@ public interface TenantMapper extends BaseMapper<Tenant> {
      * @return
      */
     List<Tenant> queryAll();
+
+    List<Integer> queryTenantListByProjectId(@Param("projectCode") Long projectCode);
 }

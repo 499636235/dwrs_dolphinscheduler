@@ -22,7 +22,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { queryProcessDefinitionByCode } from '@/service/modules/process-definition'
 import { queryAllWorkerGroups } from '@/service/modules/worker-groups'
-import { queryTenantList } from '@/service/modules/tenants'
+import {queryTenantList, queryTenantListByProjectCode} from '@/service/modules/tenants'
 import { queryAllEnvironmentList } from '@/service/modules/environment'
 import { listNormalAlertGroupById } from '@/service/modules/alert-group'
 import type { EnvironmentItem } from '@/service/modules/environment/types'
@@ -71,7 +71,7 @@ export const useStart = (
   }
 
   const getTenantList = () => {
-    queryTenantList().then((res: any) => {
+    queryTenantListByProjectCode(variables.startState.projectCode).then((res: any) => {
       variables.startState.tenantList = res.map((item: any) => ({
         label: item.tenantCode,
         value: item.tenantCode

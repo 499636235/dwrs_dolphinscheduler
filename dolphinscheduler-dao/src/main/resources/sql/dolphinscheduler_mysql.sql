@@ -2138,3 +2138,16 @@ CREATE TABLE `t_ds_listener_event` (
     KEY `idx_status` (`post_status`) USING BTREE,
     KEY `idx_sign` (`sign`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE = utf8_bin;
+
+
+DROP TABLE IF EXISTS `t_ds_relation_project_tenant`;
+CREATE TABLE `t_ds_relation_project_tenant` (
+    `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'key',
+    `tenant_id` int(11) NOT NULL COMMENT 'user id',
+    `project_id` int(11) DEFAULT NULL COMMENT 'project id',
+    `perm` int(11) DEFAULT '1' COMMENT 'limits of authority',
+    `create_time` datetime DEFAULT NULL COMMENT 'create time',
+    `update_time` datetime DEFAULT NULL COMMENT 'update time',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_tid_pid` (`tenant_id`,`project_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

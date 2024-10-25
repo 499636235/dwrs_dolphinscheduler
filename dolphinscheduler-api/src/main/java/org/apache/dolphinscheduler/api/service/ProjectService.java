@@ -133,6 +133,19 @@ public interface ProjectService {
                                                      String searchVal);
 
     /**
+     * admin can view all projects
+     *
+     * @param tenantId user id
+     * @param loginUser login user
+     * @param searchVal search value
+     * @param pageSize page size
+     * @param pageNo page number
+     * @return project list which with the login user's authorized level
+     */
+    Result queryProjectWithTenantAuthorizedListPaging(Integer tenantId, User loginUser, Integer pageSize, Integer pageNo,
+                                                     String searchVal);
+
+    /**
      * delete project by code
      *
      * @param loginUser login user

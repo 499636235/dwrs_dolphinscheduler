@@ -15,27 +15,11 @@
  * limitations under the License.
  */
 
-interface ListReq {
-  pageNo: number
-  pageSize: number
-  searchVal?: string
+.transfer {
+  width: 100%;
 }
-
-interface TenantCodeReq {
-  tenantCode: string
+.pagination {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
 }
-
-interface TenantReq extends TenantCodeReq {
-  queueId: number
-  description?: string
-}
-
-interface IdReq {
-  id: number
-}
-
-interface GrantProject extends IdReq {
-  projectIds: string
-}
-
-export { ListReq, TenantCodeReq, TenantReq, IdReq, GrantProject }

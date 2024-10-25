@@ -14,28 +14,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type {
+  TableColumns
+} from 'naive-ui/es/data-table/src/interface'
 
-interface ListReq {
-  pageNo: number
-  pageSize: number
-  searchVal?: string
-}
+type TAuthType =
+  | 'authorize_project'
+  | 'authorize_resource'
+  | 'authorize_datasource'
+  | 'authorize_udf'
+  | 'authorize_namespace'
 
-interface TenantCodeReq {
-  tenantCode: string
-}
-
-interface TenantReq extends TenantCodeReq {
-  queueId: number
-  description?: string
-}
-
-interface IdReq {
+interface IRecord {
   id: number
+  tenantCode: string
+  description: string
+  queueId: null | number
+  createTime: string
+  updateTime: string
 }
 
-interface GrantProject extends IdReq {
-  projectIds: string
+interface IResourceOption {
+  id: number
+  fullName: string
+  type: string
 }
 
-export { ListReq, TenantCodeReq, TenantReq, IdReq, GrantProject }
+interface IOption {
+  value: number
+  label: string
+}
+
+export {
+  IRecord,
+  IResourceOption,
+  IOption,
+  TAuthType,
+  TableColumns
+}

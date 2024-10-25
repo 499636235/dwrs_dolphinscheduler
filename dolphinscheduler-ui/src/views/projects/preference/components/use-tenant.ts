@@ -18,7 +18,8 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { IJsonItem } from '../../task/components/node/types'
-import { queryTenantList } from '@/service/modules/tenants'
+import {queryTenantList, queryTenantListByProjectCode} from '@/service/modules/tenants'
+import { Router, useRouter} from "vue-router";
 
 export function useTenant(): IJsonItem {
   const { t } = useI18n()
@@ -26,7 +27,9 @@ export function useTenant(): IJsonItem {
   const options = ref([] as { label: string; value: string }[])
 
   const getTenantList = async () => {
-    const res = await queryTenantList()
+    const router: Router = useRouter()
+    const projectCode = Number(router.currentRoute.value.params.projectCode)
+    const res = await queryTenantListByProjectCode(projectCode)
     options.value = res.map((item: any) => ({
       label: item.tenantCode,
       value: item.tenantCode

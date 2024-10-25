@@ -90,6 +90,14 @@ public interface TenantService {
     List<Tenant> queryTenantList(User loginUser);
 
     /**
+     * query tenant list
+     *
+     * @param loginUser login user
+     * @return tenant list
+     */
+    List<Tenant> queryTenantListByProjectCode(User loginUser, Long projectCode);
+
+    /**
      * verify tenant code
      *
      * @param tenantCode tenant code
@@ -117,4 +125,24 @@ public interface TenantService {
      * @return Tenant object
      */
     Tenant createTenantIfNotExists(String tenantCode, String desc, String queue, String queueName);
+
+    /**
+     * grant project with read permission
+     *
+     * @param loginUser login user
+     * @param id user id
+     * @param projectIds project id array
+     * @return grant result code
+     */
+    Map<String, Object> grantProjectWithReadPerm(User loginUser, int id, String projectIds);
+
+    /**
+     * revoke the project permission for specified user by id
+     * @param loginUser     Login user
+     * @param id        User id
+     * @param projectIds   project id array
+     * @return
+     */
+    Map<String, Object> revokeProjectById(User loginUser, int id, String projectIds);
+
 }

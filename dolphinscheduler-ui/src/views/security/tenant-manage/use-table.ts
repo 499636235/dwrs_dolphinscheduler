@@ -20,18 +20,25 @@ import {
   queryTenantListPaging,
   deleteTenantById
 } from '@/service/modules/tenants'
-import { reactive, h, ref } from 'vue'
-import { NButton, NIcon, NPopconfirm, NSpace, NTooltip } from 'naive-ui'
+import {reactive, h, ref, PropType} from 'vue'
+import {NButton, NDropdown, NIcon, NPopconfirm, NSpace, NTooltip} from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { DeleteOutlined, EditOutlined } from '@vicons/antd'
+import {DeleteOutlined, EditOutlined, UserOutlined} from '@vicons/antd'
 import {
   COLUMN_WIDTH_CONFIG,
   calculateTableWidth,
   DefaultTableWidth
 } from '@/common/column-width-config'
+import {IRecord, TAuthType} from './types';
 
 export function useTable() {
   const { t } = useI18n()
+
+  const handleAuthorize = (row: any) => {
+    variables.showAuthorizeModalRef = true
+    variables.statusRef = 1
+    variables.row = row
+  }
 
   const handleEdit = (row: any) => {
     variables.showModalRef = true
@@ -93,6 +100,43 @@ export function useTable() {
         render(row: any) {
           return h(NSpace, null, {
             default: () => [
+              h(
+                  NDropdown,
+                  {
+                    trigger: 'click',
+                    options: [
+                      {
+                        label: t('security.tenant.project'),
+                        key: 'authorize_project'
+                      }
+                    ],
+                    onSelect: (key) =>
+                        void handleAuthorize({ row, key })
+                  },
+                  () =>
+                      h(
+                          NTooltip,
+                          {
+                            trigger: 'hover'
+                          },
+                          {
+                            trigger: () =>
+                                h(
+                                    NButton,
+                                    {
+                                      circle: true,
+                                      type: 'info',
+                                      size: 'small',
+                                      class: 'authorize'
+                                    },
+                                    {
+                                      icon: () => h(NIcon, null, () => h(UserOutlined))
+                                    }
+                                ),
+                            default: () => t('security.user.authorize')
+                          }
+                      )
+              ),
               h(
                 NTooltip,
                 {},
@@ -171,6 +215,8 @@ export function useTable() {
     searchVal: ref(null),
     totalPage: ref(1),
     showModalRef: ref(false),
+    showAuthorizeModalRef: ref(false),
+    authorizeType: 'authorize_project' as TAuthType,
     statusRef: ref(0),
     row: {},
     loadingRef: ref(false)

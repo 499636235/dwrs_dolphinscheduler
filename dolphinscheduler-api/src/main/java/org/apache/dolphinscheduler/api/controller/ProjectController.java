@@ -195,6 +195,38 @@ public class ProjectController extends BaseController {
     }
 
     /**
+     * query project with authorized level list paging
+     *
+     * @param tenantId user id
+     * @param loginUser login user
+     * @param searchVal search value
+     * @param pageSize page size
+     * @param pageNo page number
+     * @return project list which with the login user's authorized level
+     */
+    @Operation(summary = "queryProjectWithAuthorizedLevelListPaging", description = "QUERY_PROJECT_WITH_AUTH_LEVEL_LIST_PAGING_NOTES")
+    @Parameters({
+            @Parameter(name = "tenantId", description = "TENANT_ID", schema = @Schema(implementation = int.class, example = "100")),
+            @Parameter(name = "searchVal", description = "SEARCH_VAL", schema = @Schema(implementation = String.class)),
+            @Parameter(name = "pageSize", description = "PAGE_SIZE", required = true, schema = @Schema(implementation = int.class, example = "10")),
+            @Parameter(name = "pageNo", description = "PAGE_NO", required = true, schema = @Schema(implementation = int.class, example = "1"))
+    })
+    @GetMapping(value = "/project-with-tenant-authorized-list-paging")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiException(LOGIN_USER_QUERY_PROJECT_LIST_PAGING_ERROR)
+    public Result queryProjectWithTenantAuthorizedListPaging(@Parameter(hidden = true) @RequestAttribute(value = Constants.SESSION_USER) User loginUser,
+                                                            @RequestParam("tenantId") Integer tenantId,
+                                                            @RequestParam(value = "searchVal", required = false) String searchVal,
+                                                            @RequestParam("pageSize") Integer pageSize,
+                                                            @RequestParam("pageNo") Integer pageNo) {
+
+        checkPageParams(pageNo, pageSize);
+        searchVal = ParameterUtils.handleEscapes(searchVal);
+        return projectService.queryProjectWithTenantAuthorizedListPaging(tenantId, loginUser, pageSize, pageNo,
+                searchVal);
+    }
+
+    /**
      * delete project by code
      *
      * @param loginUser login user
