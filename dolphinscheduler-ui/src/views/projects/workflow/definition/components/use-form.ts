@@ -105,6 +105,17 @@ export const useForm = () => {
             return new Error(t('project.workflow.warning_group_tip'))
           }
         }
+      },
+      tenantCode: {
+        trigger: ['blur'],
+        validator() {
+          if (
+            startState.startForm.tenantCode !== '' &&
+            !startState.startForm.tenantCode
+          ) {
+            return new Error(t('project.workflow.tenant_code_tip'))
+          }
+        }
       }
     }
   })

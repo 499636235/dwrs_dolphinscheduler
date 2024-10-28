@@ -397,7 +397,7 @@ public class TenantServiceImpl extends BaseServiceImpl implements TenantService 
             ProjectTenant projectTenant = new ProjectTenant();
             projectTenant.setTenantId(id);
             projectTenant.setProjectId(Integer.parseInt(projectId));
-            projectTenant.setPerm(1);
+            projectTenant.setPerm(Constants.READ_PERMISSION);
             projectTenant.setCreateTime(now);
             projectTenant.setUpdateTime(now);
             projectTenantMapper.insert(projectTenant);

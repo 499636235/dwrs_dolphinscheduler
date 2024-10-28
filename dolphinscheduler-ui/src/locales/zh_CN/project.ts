@@ -142,6 +142,7 @@ export default {
     failure_send: '失败发',
     all_send: '成功或失败都发',
     warning_group_tip: '请选择告警组',
+    tenant_code_tip: '请选择租户',
     whether_complement_data: '是否是补数',
     schedule_date: '调度日期',
     select_date: '日期选择',

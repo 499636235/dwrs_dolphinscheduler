@@ -497,7 +497,7 @@ public class ProjectServiceImpl extends BaseServiceImpl implements ProjectServic
             if (projectTenant == null) {
                 project.setPerm(0);
             } else {
-                project.setPerm(1);
+                project.setPerm(Constants.READ_PERMISSION);
             }
         }
         pageInfo.setTotal((int) projectIPage.getTotal());
