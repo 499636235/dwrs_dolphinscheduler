@@ -330,6 +330,7 @@ export default defineComponent({
           <NFormItem
             label={t('project.workflow.tenant_code')}
             path='tenantCode'
+            required
           >
             <NSelect
               options={this.tenantList}

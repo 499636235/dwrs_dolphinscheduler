@@ -134,7 +134,7 @@ export const useForm = () => {
       processInstancePriority: 'MEDIUM',
       warningGroupId: null as null | number,
       workerGroup: 'default',
-      tenantCode: 'default',
+      tenantCode: null,
       environmentCode: null as null | string
     },
     saving: false,
@@ -147,6 +147,17 @@ export const useForm = () => {
             !timingState.timingForm.warningGroupId
           ) {
             return new Error(t('project.workflow.warning_group_tip'))
+          }
+        }
+      },
+      tenantCode: {
+        trigger: ['blur'],
+        validator() {
+          if (
+              timingState.timingForm.tenantCode !== '' &&
+              !timingState.timingForm.tenantCode
+          ) {
+            return new Error(t('project.workflow.tenant_code_tip'))
           }
         }
       }
